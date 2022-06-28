@@ -1,0 +1,110 @@
+image: docker
+services:
+  - docker:dind
+
+stages:
+  - build
+  - manifest
+
+before_script:
+  - docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD
+  - export SANITIZED_BRANCH="$(echo $CI_COMMIT_REF_NAME | sed -r 's#^release/##' | sed 's/\//_/g')"
+  - export SANITIZED_ROLLING_BRANCH=${SANITIZED_BRANCH}-rolling
+
+build:
+  stage: build
+  script:
+    - >
+        docker build
+        -t ${ORG_NAME}/workspaces:$(arch)-$SANITIZED_BRANCH
+        .
+    - docker push ${ORG_NAME}/workspaces:$(arch)-$SANITIZED_BRANCH
+  only:
+    - develop
+    - /^release\/.*$/
+  except:
+    - schedules
+  tags:
+    - ${TAG}
+  parallel:
+    matrix:
+      - TAG: [ aws-autoscale, aws-autoscale-arm64 ]
+
+build_dev:
+  stage: build
+  script:
+    - >
+        docker build 
+        -t ${ORG_NAME}/workspaces-private:$(arch)-$SANITIZED_BRANCH
+        .
+    - docker push ${ORG_NAME}/workspaces-private:$(arch)-$SANITIZED_BRANCH
+  except:
+    - develop
+    - /^release\/.*$/
+  tags:
+    - ${TAG}
+  parallel:
+    matrix:
+      - TAG: [ aws-autoscale, aws-autoscale-arm64 ]
+
+build_scheduled:
+  stage: build
+  script:
+    - >
+        docker build
+        -t ${ORG_NAME}/workspaces:$(arch)-$SANITIZED_ROLLING_BRANCH
+        .
+    - docker push ${ORG_NAME}/workspaces:$(arch)-$SANITIZED_ROLLING_BRANCH
+  only:
+    - schedules
+  tags:
+    - ${TAG}
+  parallel:
+    matrix:
+      - TAG: [ aws-autoscale, aws-autoscale-arm64 ]
+
+manifest:
+  stage: manifest
+  script:
+    - docker pull ${ORG_NAME}/workspaces:x86_64-$SANITIZED_BRANCH
+    - docker pull ${ORG_NAME}/workspaces:aarch64-$SANITIZED_BRANCH
+    - "docker manifest push --purge ${ORG_NAME}/workspaces:$SANITIZED_BRANCH || :"
+    - docker manifest create ${ORG_NAME}/workspaces:$SANITIZED_BRANCH ${ORG_NAME}/workspaces:x86_64-$SANITIZED_BRANCH ${ORG_NAME}/workspaces:aarch64-$SANITIZED_BRANCH
+    - docker manifest annotate ${ORG_NAME}/workspaces:$SANITIZED_BRANCH ${ORG_NAME}/workspaces:aarch64-$SANITIZED_BRANCH --os linux --arch arm64 --variant v8
+    - docker manifest push --purge ${ORG_NAME}/workspaces:$SANITIZED_BRANCH
+  only:
+    - develop
+    - /^release\/.*$/
+  except:
+    - schedules
+  tags:
+    - aws-autoscale
+
+manifest_dev:
+  stage: manifest
+  script:
+    - docker pull ${ORG_NAME}/workspaces-private:x86_64-$SANITIZED_BRANCH
+    - docker pull ${ORG_NAME}/workspaces-private:aarch64-$SANITIZED_BRANCH
+    - "docker manifest push --purge ${ORG_NAME}/workspaces-private:$SANITIZED_BRANCH || :"
+    - docker manifest create ${ORG_NAME}/workspaces-private:$SANITIZED_BRANCH ${ORG_NAME}/workspaces-private:x86_64-$SANITIZED_BRANCH ${ORG_NAME}/workspaces-private:aarch64-$SANITIZED_BRANCH
+    - docker manifest annotate ${ORG_NAME}/workspaces-private:$SANITIZED_BRANCH ${ORG_NAME}/workspaces-private:aarch64-$SANITIZED_BRANCH --os linux --arch arm64 --variant v8
+    - docker manifest push --purge ${ORG_NAME}/workspaces-private:$SANITIZED_BRANCH
+  except:
+    - develop
+    - /^release\/.*$/
+  tags:
+    - aws-autoscale
+
+manifest_scheduled:
+  stage: manifest
+  script:
+    - docker pull ${ORG_NAME}/workspaces:x86_64-$SANITIZED_ROLLING_BRANCH
+    - docker pull ${ORG_NAME}/workspaces:aarch64-$SANITIZED_ROLLING_BRANCH
+    - "docker manifest push --purge ${ORG_NAME}/workspaces:$SANITIZED_ROLLING_BRANCH || :"
+    - docker manifest create ${ORG_NAME}/workspaces:$SANITIZED_ROLLING_BRANCH ${ORG_NAME}/workspaces:x86_64-$SANITIZED_ROLLING_BRANCH ${ORG_NAME}/workspaces:aarch64-$SANITIZED_ROLLING_BRANCH
+    - docker manifest annotate ${ORG_NAME}/workspaces:$SANITIZED_ROLLING_BRANCH ${ORG_NAME}/workspaces:aarch64-$SANITIZED_ROLLING_BRANCH --os linux --arch arm64 --variant v8
+    - docker manifest push --purge ${ORG_NAME}/workspaces:$SANITIZED_ROLLING_BRANCH
+  only:
+    - schedules
+  tags:
+    - aws-autoscale

@@ -1,0 +1,51 @@
+#!/usr/bin/with-contenv bash
+
+cat << "EOF"
+  _  __                    __          __        _                                  
+ | |/ /                    \ \        / /       | |                                 
+ | ' / __ _ ___ _ __ ___    \ \  /\  / /__  _ __| | _____ _ __   __ _  ___ ___  ___ 
+ |  < / _` / __| '_ ` _ \    \ \/  \/ / _ \| '__| |/ / __| '_ \ / _` |/ __/ _ \/ __|
+ | . \ (_| \__ \ | | | | |    \  /\  / (_) | |  |   <\__ \ |_) | (_| | (_|  __/\__ \
+ |_|\_\__,_|___/_| |_| |_|     \/  \/ \___/|_|  |_|\_\___/ .__/ \__,_|\___\___||___/
+                                                         | |                        
+                                                         |_|   
+MKWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWNMMMMMMMMMMMWXkxKM
+Mk.                                                       .cKMMMMMMMMMWXk:..kW
+Mk.                                                     .;xKWMMMMMMMWXk:.  .kW
+Mk.                                                   .;xXWMMMMMMMWXk;.    .kW
+Mk.                                                 .;xXWMMMMMMMWXk;.      .kW
+Mk.           ....................                .;xXWMMMMMMMWXk;.        .kW
+Mk.         .cO00000000000000000kl.             .;xXWMMMMMMMWXk;.          .kW
+Mk.         .xWMMMMMMMMMMMMMMMNOc.            .;xXWMMMMMMMWXx;.            .kW
+Mk.         .xWMMMMMMMMMMMMMNOc.            .;xXWMMMMMMMWXx;.              .kW
+Mk.         .xWMMMMMMMMMMMNOc.            .;xXWMMMMMMMWXx;.                .kW
+Mk.         .xWMMMMMMMMMNOc.           ..;xXWMMMMMMMWXx;.                  .kW
+Mk.         .xWMMMMMMMNOc.           .;x0XWMMMMMMMWXx;.                    .kW
+Mk.         .xWMMMMMMM0,           .;xXWMMMMMMMMWXx;.                      .kW
+Mk.         .xWMMMMMMWO.         .;xXWMMMMMMMMWXx;.                        .kW
+Mk.         .xWMMMMMMMO.       .;xXWMMMMMMMMWXx;.                          .kW
+Mk.         .xWMMMMMMMO.     .;xXWMMMMMMMMWXx;.                            .kW
+Mk.         .xWMMMMMMMO.   .;xXWMMMMMMMWWXx;.                              .kW
+Mk.         .xWMMMMMMMO. .;xXWMMMMMMMWXxl;.                                .kW
+Mk.         .xWMMMMMMM0::xXWMMMMMMMWXx;.                                   .kW
+Mk.         .xWMMMMMMMWXXWMMMMMMMWXx;.                                     .kW
+Mk.         .xWMMMMMMMMMMMMMMMMWXx;.                                       .kW
+Mk.         .xWMMMMMMMMMMMMMMWXx;.                                         .kW
+Mk.         .xWMMMMMMMMMMMMWXx;.          .;c,                             .kW
+Mk.         .xWMMMMMMMMMMWXx;.         ..;xXNKd,                           .kW
+Mk.         .xWMMMMMMMMWXx;.         .;kKXWMMMWKd,.                        .kW
+Mk.         .xWMMMMMMWXd;.         .;xXWMMMMMMMMWKd,                       .kW
+Mk.         .xWMMMMWXx;.         .;xXWMMMMMMMMMMMMWKd,                     .kW
+Mk.         .xWMMWKd,.         .:kXWMMMMMMMNXNMMMMMMWKd,.                  .kW
+Mk.         .xWWKd,.         .:kXWMMMMMMWNOc;o0WMMMMMMWKd,.                .kW
+Mk.         .d0d,.         .:kXWMMMMMMNOdc.   .o0WMMMMMMWKd,.              .kW
+Mk.          ...         .:kXWMMMMMMNOc.        .o0NNNNNNNXOl.             .kW
+Mk.                    .:kXMMMMMMWNOc.            .,,,,,,,,,..             .kW
+Mk.                  .:kXWMMMMMMNkc.                                       .kW
+Mk.                .:kXWMMMMMMNk:.                                         .kW
+Mk.              .:kXMMMMMMWNOc.                                           .OW
+Mk.            .:kXMMMMMMWNkc.                                            ;kNM
+Mk.          .:kXWMMMMMWNk:.                                           ..;xNMM
+M0l;;;;;;;;;ckXWMMMMMMMW0o:;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ckXNWMMM
+MMWWWWWWWWWWWWMMMMMMMMMMWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWMMMMMMM
+EOF
