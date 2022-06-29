@@ -50,8 +50,8 @@ docker run -d \
 
 | Parameter | Function |
 | :----: | --- |
-| `-p 443` | Kasm Workspaces web UI |
-| `-p 3000` | Kasm Installation and upgrade wizard |
+| `-p 443` | Kasm Workspaces web UI (HTTPS) |
+| `-p 3000` | Kasm Installation and upgrade wizard (HTTPS) |
 | `-v /kasm/local/storage:/opt` | Docker and Kasm Storage |
 | `-e KASM_PORT=443` | If not using port 443 this needs to be set to the port you are binding to (optional) |
 | `-e DOCKER_HUB_USERNAME=USER` | Dockerhub username for logging in on init (optional) |

@@ -9,3 +9,9 @@ fi
 if [ ! -z "${DOCKER_HUB_USERNAME}" ]; then
   docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD
 fi
+
+# Setup wizard certs if needed
+if [ ! -f "/opt/kasm/certs/kasm_wizard.crt" ]; then
+  mkdir -p /opt/kasm/certs
+  openssl req -x509 -nodes -days 1825 -newkey rsa:2048 -keyout /opt/kasm/certs/kasm_wizard.key -out /opt/kasm/certs/kasm_wizard.crt -subj "/C=US/ST=VA/L=None/O=None/OU=DoFu/CN=$(hostname)/emailAddress=none@none.none"
+fi
