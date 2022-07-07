@@ -1,9 +1,8 @@
 FROM alpine:3.16
 
 # Settings
-ARG WIZARD_URL="https://kasmweb-build-artifacts.s3.amazonaws.com/wizard/develop.tar.gz"
-ARG S3_URL="https://kasmweb-build-artifacts.s3.amazonaws.com/kasm_backend/7588f65420252c56401b20470fe95b8ed690a9a4/kasm_workspaces_develop_1.11.0.7588f6.tar.gz"
 ARG OVERLAY_VERSION="v2.2.0.3"
+ARG RELEASE_TYPE="develop"
 ENV DOCKER_TLS_CERTDIR=""
 
 # Container setup
@@ -27,6 +26,7 @@ RUN \
     fuse-overlayfs \
     ip6tables \
     iptables \
+    jq \
     nodejs \
     openssl \
     pigz \
@@ -55,24 +55,34 @@ RUN \
     https://github.com/just-containers/s6-overlay/releases/download/${OVERLAY_VERSION}/s6-overlay-$(uname -m | sed 's/x86_64/amd64/g')-installer && \
   chmod +x /tmp/s6-overlay-installer && \
   /tmp/s6-overlay-installer / && \
+  echo "**** setup wizard ****" && \
+  mkdir -p /wizard && \
+  if [ -z ${KASM_VERSION+x} ]; then \
+    if [ "${RELEASE_TYPE}" == "develop" ]; then \
+      KASM_VERSION=$(curl -sX GET 'https://api.github.com/repos/kasmtech/kasm-install-wizard/releases' \
+      | jq -r '.[] | select (.prerelease==true)' \
+      | jq -rs 'max_by(.name | split(".") | map(tonumber)) | .name'); \
+    fi; \
+    if [ "${RELEASE_TYPE}" == "stable" ]; then \
+      KASM_VERSION=$(curl -sX GET 'https://api.github.com/repos/kasmtech/kasm-install-wizard/releases/latest' \
+      | jq -r '.name'); \
+    fi; \
+  fi && \
+  curl -o \
+    /tmp/wizard.tar.gz -L \
+    "https://github.com/kasmtech/kasm-install-wizard/archive/refs/tags/${KASM_VERSION}.tar.gz" && \
+  tar xf \
+    /tmp/wizard.tar.gz -C \
+    /wizard --strip-components=1 && \
+  cd /wizard && \
+  npm install && \
   echo "**** add installer ****" && \
   curl -o \
     /tmp/kasm.tar.gz -L \
-    "${S3_URL}" && \
+    "https://github.com/kasmtech/kasm-install-wizard/releases/download/${KASM_VERSION}/kasm_release.tar.gz" && \
   tar xf \
     /tmp/kasm.tar.gz -C \
     / && \
-  echo "**** add wizard ****" && \
-  mkdir -p /wizard && \
-  curl -o \
-    /tmp/wizard.tar.gz -L \
-    "${WIZARD_URL}" && \
-  tar xf \
-    /tmp/wizard.tar.gz -C \
-    /wizard/ && \
-  echo "**** setup wizard ****" && \
-  cd /wizard && \
-  npm install && \
   echo "**** copy assets ****" && \
   cp \
     /kasm_release/www/img/thumbnails/*.png \

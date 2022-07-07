@@ -10,12 +10,14 @@ before_script:
   - docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD
   - export SANITIZED_BRANCH="$(echo $CI_COMMIT_REF_NAME | sed -r 's#^release/##' | sed 's/\//_/g')"
   - export SANITIZED_ROLLING_BRANCH=${SANITIZED_BRANCH}-rolling
+  - export BUILD_TYPE=develop
 
 build:
   stage: build
   script:
+    - if [ "${SANITIZED_BRANCH}" != "develop"]; then export BUILD_TYPE=stable; fi
     - >
-        docker build
+        docker build --build-arg RELEASE_TYPE=$BUILD_TYPE
         -t ${ORG_NAME}/workspaces:$(arch)-$SANITIZED_BRANCH
         .
     - docker push ${ORG_NAME}/workspaces:$(arch)-$SANITIZED_BRANCH
@@ -50,8 +52,9 @@ build_dev:
 build_scheduled:
   stage: build
   script:
+    - if [ "${SANITIZED_ROLLING_BRANCH}" != "develop-rolling"]; then export BUILD_TYPE=stable; fi
     - >
-        docker build
+        docker build --build-arg RELEASE_TYPE=$BUILD_TYPE
         -t ${ORG_NAME}/workspaces:$(arch)-$SANITIZED_ROLLING_BRANCH
         .
     - docker push ${ORG_NAME}/workspaces:$(arch)-$SANITIZED_ROLLING_BRANCH
