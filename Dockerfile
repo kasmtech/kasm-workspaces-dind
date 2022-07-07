@@ -57,17 +57,15 @@ RUN \
   /tmp/s6-overlay-installer / && \
   echo "**** setup wizard ****" && \
   mkdir -p /wizard && \
-  if [ -z ${KASM_VERSION+x} ]; then \
-    if [ "${RELEASE_TYPE}" == "develop" ]; then \
-      KASM_VERSION=$(curl -sX GET 'https://api.github.com/repos/kasmtech/kasm-install-wizard/releases' \
-      | jq -r '.[] | select (.prerelease==true)' \
-      | jq -rs 'max_by(.name | split(".") | map(tonumber)) | .name'); \
-    fi; \
-    if [ "${RELEASE_TYPE}" == "stable" ]; then \
-      KASM_VERSION=$(curl -sX GET 'https://api.github.com/repos/kasmtech/kasm-install-wizard/releases/latest' \
-      | jq -r '.name'); \
-    fi; \
-  fi && \
+  if [ "${RELEASE_TYPE}" == "develop" ]; then \
+    KASM_VERSION=$(curl -sX GET 'https://api.github.com/repos/kasmtech/kasm-install-wizard/releases' \
+    | jq -r '[.[] | select (.prerelease==true)][0].name'); \
+  fi; \
+  if [ "${RELEASE_TYPE}" == "stable" ]; then \
+    KASM_VERSION=$(curl -sX GET 'https://api.github.com/repos/kasmtech/kasm-install-wizard/releases/latest' \
+    | jq -r '.name'); \
+  fi; \
+  echo $KASM_VERSION && \
   curl -o \
     /tmp/wizard.tar.gz -L \
     "https://github.com/kasmtech/kasm-install-wizard/archive/refs/tags/${KASM_VERSION}.tar.gz" && \

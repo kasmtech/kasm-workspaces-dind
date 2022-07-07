@@ -15,7 +15,7 @@ before_script:
 build:
   stage: build
   script:
-    - if [ "${SANITIZED_BRANCH}" != "develop"]; then export BUILD_TYPE=stable; fi
+    - if [ "${SANITIZED_BRANCH}" != "develop" ]; then export BUILD_TYPE=stable; fi
     - >
         docker build --build-arg RELEASE_TYPE=$BUILD_TYPE
         -t ${ORG_NAME}/workspaces:$(arch)-$SANITIZED_BRANCH
@@ -52,7 +52,7 @@ build_dev:
 build_scheduled:
   stage: build
   script:
-    - if [ "${SANITIZED_ROLLING_BRANCH}" != "develop-rolling"]; then export BUILD_TYPE=stable; fi
+    - if [ "${SANITIZED_ROLLING_BRANCH}" != "develop-rolling" ]; then export BUILD_TYPE=stable; fi
     - >
         docker build --build-arg RELEASE_TYPE=$BUILD_TYPE
         -t ${ORG_NAME}/workspaces:$(arch)-$SANITIZED_ROLLING_BRANCH
