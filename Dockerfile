@@ -59,7 +59,7 @@ RUN \
   mkdir -p /wizard && \
   if [ "${RELEASE_TYPE}" == "develop" ]; then \
     KASM_VERSION=$(curl -sX GET 'https://api.github.com/repos/kasmtech/kasm-install-wizard/releases' \
-    | jq -r '[.[] | select (.prerelease==true)][0].name'); \
+    | jq -r 'map(select(.prerelease)) | sort_by(.published_at) | last | .tag_name'); \
   fi; \
   if [ "${RELEASE_TYPE}" == "stable" ]; then \
     KASM_VERSION=$(curl -sX GET 'https://api.github.com/repos/kasmtech/kasm-install-wizard/releases/latest' \
