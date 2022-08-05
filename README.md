@@ -18,7 +18,7 @@ It has a few core principles:
 version: "2.1"
 services:
   kasm:
-    image: kasmweb/kasm:latest
+    image: kasmweb/workspaces:1.11.0
     privileged: true
     container_name: kasm
     environment:
@@ -45,7 +45,7 @@ docker run -d \
   -p 443:443 \
   -p 3000:3000 \
   -v /kasm/local/storage:/opt \
-  kasmweb/kasm:latest
+  kasmweb/workspaces:1.11.0
 ```
 
 | Parameter | Function |
@@ -62,7 +62,7 @@ docker run -d \
 
 | Tag | Description |
 | :----: | --- |
-| latest | Latest stable release |
+| 1.11.0 | Latest stable release |
 | develop | Development head |
 
 | Architecture | Tag |
