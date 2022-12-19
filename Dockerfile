@@ -1,4 +1,4 @@
-FROM alpine:3.16
+FROM ubuntu:jammy
 
 # Settings
 ARG OVERLAY_VERSION="v2.2.0.3"
@@ -7,41 +7,47 @@ ENV DOCKER_TLS_CERTDIR=""
 
 # Container setup
 RUN \
-  echo "**** install build packages ****" && \
-  apk add --no-cache --virtual=build-dependencies \
-    alpine-sdk \
-    npm && \
   echo "**** install packages ****" && \
-  apk add --no-cache \
+  apt-get update && \
+  apt-get install -y \
+    curl \
+    gnupg && \
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - && \
+  ARCH=$(uname -m | sed 's/x86_64/amd64/g' |sed 's/aarch64/arm64/g') && \
+  echo "deb [arch=${ARCH}] https://download.docker.com/linux/ubuntu jammy stable" > \
+    /etc/apt/sources.list.d/docker.list && \
+  curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | \
+    gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg && \
+  curl -s -L https://nvidia.github.io/libnvidia-container/ubuntu22.04/libnvidia-container.list | \
+    sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+    tee /etc/apt/sources.list.d/nvidia-container-toolkit.list && \
+  curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && \
+  apt-get install -y --no-install-recommends \
     bash \
     btrfs-progs \
-    ca-certificates \
-    coreutils \
-    curl \
-    docker \
-    docker-cli-compose \
+    containerd.io \
+    docker-ce \
+    docker-ce-cli \
+    docker-compose-plugin \
+    drm-info \
     e2fsprogs \
-    e2fsprogs-extra \
-    findutils \
     fuse-overlayfs \
-    ip6tables \
+    g++ \
+    gcc \
     iptables \
     jq \
+    make \
     nodejs \
+    nvidia-docker2 \
     openssl \
     pigz \
-    procps \
     python3 \
-    shadow \
-    shadow-uidmap \
     sudo \
-    tzdata \
-    xfsprogs \
-    xz \
-    zfs && \
+    uidmap \
+    xfsprogs && \
   echo "**** dind setup ****" && \
-  addgroup -S dockremap && \
-  adduser -S -G dockremap dockremap && \
+  useradd -U dockremap && \
+  usermod -G dockremap dockremap && \
   echo 'dockremap:165536:65536' >> /etc/subuid && \
   echo 'dockremap:165536:65536' >> /etc/subgid && \
   curl -o \
@@ -57,15 +63,14 @@ RUN \
   /tmp/s6-overlay-installer / && \
   echo "**** setup wizard ****" && \
   mkdir -p /wizard && \
-  if [ "${RELEASE_TYPE}" == "develop" ]; then \
-    KASM_VERSION=$(curl -sX GET 'https://api.github.com/repos/kasmtech/kasm-install-wizard/releases' \
-    | jq -r 'map(select(.prerelease)) | sort_by(.published_at) | last | .tag_name'); \
+  if [ "${RELEASE_TYPE}" = "develop" ]; then \
+    KASM_VERSION=$(curl -sX GET https://kasm-ci.s3.amazonaws.com/dev-version.txt); \
   fi; \
-  if [ "${RELEASE_TYPE}" == "stable" ]; then \
+  if [ "${RELEASE_TYPE}" = "stable" ]; then \
     KASM_VERSION=$(curl -sX GET 'https://api.github.com/repos/kasmtech/kasm-install-wizard/releases/latest' \
     | jq -r '.name'); \
   fi; \
-  echo $KASM_VERSION && \
+  echo "${KASM_VERSION}" > /version.txt && \
   curl -o \
     /tmp/wizard.tar.gz -L \
     "https://github.com/kasmtech/kasm-install-wizard/archive/refs/tags/${KASM_VERSION}.tar.gz" && \
@@ -83,18 +88,19 @@ RUN \
     / && \
   echo "**** copy assets ****" && \
   cp \
-    /kasm_release/www/img/thumbnails/*.png \
+    /kasm_release/www/img/thumbnails/*.png /kasm_release/www/img/thumbnails/*.svg \
     /wizard/public/img/thumbnails/ && \
   cp \
     /kasm_release/conf/database/seed_data/default_images_a* \
     /wizard/ && \
   echo "**** cleanup ****" && \
-  apk del --purge \
-    build-dependencies && \
+  apt-get remove -y g++ gcc make && \
+  apt-get -y autoremove && \
+  apt-get clean && \
   rm -rf \
-    /root/.npm \
-    /root/.cache \
-    /tmp/*
+    /tmp/* \
+    /var/lib/apt/lists/* \
+    /var/tmp/*
 
 # add init files
 COPY root/ /
