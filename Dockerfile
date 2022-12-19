@@ -2,7 +2,7 @@ FROM ubuntu:jammy
 
 # Settings
 ARG OVERLAY_VERSION="v2.2.0.3"
-ARG RELEASE_TYPE="develop"
+ARG RELEASE_TYPE="stable"
 ENV DOCKER_TLS_CERTDIR=""
 
 # Container setup
