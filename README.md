@@ -18,7 +18,7 @@ It has a few core principles:
 version: "2.1"
 services:
   kasm:
-    image: kasmweb/workspaces:1.11.0
+    image: kasmweb/workspaces:1.12.0
     privileged: true
     container_name: kasm
     environment:
@@ -27,6 +27,9 @@ services:
       - DOCKER_HUB_PASSWORD=PASS #optional
     volumes:
       - /kasm/local/storage:/opt
+      - /path/to/profiles:/profiles #optional
+      - /dev/input:/dev/input #optional
+      - /run/udev/data:/run/udev/data #optional
     ports:
       - 443:443
       - 3000:3000
@@ -45,6 +48,9 @@ docker run -d \
   -p 443:443 \
   -p 3000:3000 \
   -v /kasm/local/storage:/opt \
+  -v /path/to/profiles:/profiles `#optional` \
+  -v /dev/input:/dev/input `#optional` \
+  -v /run/udev/data:/run/udev/data `#optional` \
   kasmweb/workspaces:1.11.0
 ```
 
@@ -53,6 +59,9 @@ docker run -d \
 | `-p 443` | Kasm Workspaces web UI (HTTPS) |
 | `-p 3000` | Kasm Installation and upgrade wizard (HTTPS) |
 | `-v /kasm/local/storage:/opt` | Docker and Kasm Storage |
+| `-v /profiles` | Optionally specify a path for persistent profile storage. |
+| `-v /dev/input` | Optional for gamepad support. |
+| `-v /run/udev/data` | Optional for gamepad support. |
 | `-e KASM_PORT=443` | If not using port 443 this needs to be set to the port you are binding to (optional) |
 | `-e DOCKER_HUB_USERNAME=USER` | Dockerhub username for logging in on init (optional) |
 | `-e DOCKER_HUB_PASSWORD=PASS` | Dockerhub password for logging in on init (optional) |
@@ -62,7 +71,7 @@ docker run -d \
 
 | Tag | Description |
 | :----: | --- |
-| 1.11.0 | Latest stable release |
+| 1.12.0 | Latest stable release |
 | develop | Development head |
 
 | Architecture | Tag |
