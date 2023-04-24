@@ -28,7 +28,6 @@ RUN \
     containerd.io \
     docker-ce \
     docker-ce-cli \
-    docker-compose-plugin \
     drm-info \
     e2fsprogs \
     fuse-overlayfs \
@@ -36,6 +35,7 @@ RUN \
     gcc \
     iptables \
     jq \
+    lsof \
     make \
     nodejs \
     nvidia-docker2 \
@@ -45,6 +45,12 @@ RUN \
     sudo \
     uidmap \
     xfsprogs && \
+  echo "**** compose install ****" && \
+  mkdir -p /usr/local/lib/docker/cli-plugins && \
+  curl -L \
+    https://github.com/docker/compose/releases/download/v2.5.0/docker-compose-$(uname -s)-$(uname -m) -o \
+    /usr/local/lib/docker/cli-plugins/docker-compose && \ 
+  chmod +x /usr/local/lib/docker/cli-plugins/docker-compose && \
   echo "**** dind setup ****" && \
   useradd -U dockremap && \
   usermod -G dockremap dockremap && \
@@ -85,6 +91,12 @@ RUN \
     "https://github.com/kasmtech/kasm-install-wizard/releases/download/${KASM_VERSION}/kasm_release.tar.gz" && \
   tar xf \
     /tmp/kasm.tar.gz -C \
+    / && \
+  curl -o \
+    /tmp/images.tar.gz -L \
+    "https://kasm-ci.s3.amazonaws.com/1.13.0-images-combined.tar.gz" && \
+  tar xf \
+    /tmp/images.tar.gz -C \
     / && \
   echo "**** copy assets ****" && \
   cp \
