@@ -18,7 +18,7 @@ It has a few core principles:
 version: "2.1"
 services:
   kasm:
-    image: kasmweb/workspaces:1.14.0
+    image: kasmweb/workspaces:1.15.0
     privileged: true
     container_name: kasm
     environment:
@@ -51,7 +51,7 @@ docker run -d \
   -v /path/to/profiles:/profiles `#optional` \
   -v /dev/input:/dev/input `#optional` \
   -v /run/udev/data:/run/udev/data `#optional` \
-  kasmweb/workspaces:1.14.0
+  kasmweb/workspaces:1.15.0
 ```
 
 | Parameter | Function |
@@ -71,7 +71,7 @@ docker run -d \
 
 | Tag | Description |
 | :----: | --- |
-| 1.14.0 | Latest stable release |
+| 1.15.0 | Latest stable release |
 | develop | Development head |
 
 | Architecture | Tag |

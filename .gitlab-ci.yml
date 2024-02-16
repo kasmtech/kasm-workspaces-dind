@@ -6,6 +6,10 @@ stages:
   - build
   - manifest
 
+variables:
+  DOCKER_HOST: tcp://docker:2375
+  DOCKER_TLS_CERTDIR: ""
+
 before_script:
   - docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD
   - export SANITIZED_BRANCH="$(echo $CI_COMMIT_REF_NAME | sed -r 's#^release/##' | sed 's/\//_/g')"
@@ -30,7 +34,7 @@ build:
     - ${TAG}
   parallel:
     matrix:
-      - TAG: [ aws-autoscale, aws-autoscale-arm64 ]
+      - TAG: [ oci-fixed-amd, oci-fixed-arm ]
 
 build_dev:
   stage: build
@@ -47,7 +51,7 @@ build_dev:
     - ${TAG}
   parallel:
     matrix:
-      - TAG: [ aws-autoscale, aws-autoscale-arm64 ]
+      - TAG: [ oci-fixed-amd, oci-fixed-arm ]
 
 build_scheduled:
   stage: build
@@ -64,7 +68,7 @@ build_scheduled:
     - ${TAG}
   parallel:
     matrix:
-      - TAG: [ aws-autoscale, aws-autoscale-arm64 ]
+      - TAG: [ oci-fixed-amd, oci-fixed-arm ]
 
 manifest:
   stage: manifest
@@ -81,7 +85,7 @@ manifest:
   except:
     - schedules
   tags:
-    - aws-autoscale
+    - oci-fixed-amd
 
 manifest_dev:
   stage: manifest
@@ -96,7 +100,7 @@ manifest_dev:
     - develop
     - /^release\/.*$/
   tags:
-    - aws-autoscale
+    - oci-fixed-amd
 
 manifest_scheduled:
   stage: manifest
@@ -110,4 +114,4 @@ manifest_scheduled:
   only:
     - schedules
   tags:
-    - aws-autoscale
+    - oci-fixed-amd
