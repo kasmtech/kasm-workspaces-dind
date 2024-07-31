@@ -3,7 +3,8 @@ FROM ubuntu:jammy
 # Settings
 ARG OVERLAY_VERSION="v2.2.0.3"
 ARG RELEASE_TYPE="develop"
-ENV DOCKER_TLS_CERTDIR=""
+ENV DOCKER_TLS_CERTDIR="" \
+    NVIDIA_DRIVER_CAPABILITIES="compute,graphics,video,utility"
 
 # Container setup
 RUN \
@@ -28,16 +29,17 @@ RUN \
     containerd.io \
     docker-ce \
     docker-ce-cli \
-    drm-info \
     e2fsprogs \
     fuse-overlayfs \
     g++ \
     gcc \
+    iproute2 \
     iptables \
     jq \
     lsof \
     make \
     nodejs \
+    nvidia-container-toolkit \
     nvidia-docker2 \
     openssl \
     pigz \
@@ -95,7 +97,7 @@ RUN \
   ALVERSION=$(cat /kasm_release/conf/database/seed_data/default_properties.yaml |awk '/alembic_version/ {print $2}') && \
   curl -o \
     /tmp/images.tar.gz -L \
-    "https://kasm-ci.s3.amazonaws.com/1.15.0-images-combined.tar.gz" && \
+    "https://kasm-ci.s3.amazonaws.com/1.16.0-images-combined.tar.gz" && \
   tar xf \
     /tmp/images.tar.gz -C \
     / && \
