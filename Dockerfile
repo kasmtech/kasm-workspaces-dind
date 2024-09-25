@@ -50,7 +50,7 @@ RUN \
   echo "**** compose install ****" && \
   mkdir -p /usr/local/lib/docker/cli-plugins && \
   curl -L \
-    https://github.com/docker/compose/releases/download/v2.5.0/docker-compose-$(uname -s)-$(uname -m) -o \
+    https://github.com/docker/compose/releases/download/v2.29.6/docker-compose-$(uname -s)-$(uname -m) -o \
     /usr/local/lib/docker/cli-plugins/docker-compose && \ 
   chmod +x /usr/local/lib/docker/cli-plugins/docker-compose && \
   echo "**** dind setup ****" && \
