@@ -18,7 +18,7 @@ It has a few core principles:
 version: "2.1"
 services:
   kasm:
-    image: kasmweb/workspaces:1.15.0
+    image: kasmweb/workspaces:1.16.1
     privileged: true
     container_name: kasm
     environment:
