@@ -1,4 +1,4 @@
-FROM ubuntu:jammy
+FROM ubuntu:noble
 
 # Settings
 ARG OVERLAY_VERSION="v2.2.0.3"
@@ -15,14 +15,14 @@ RUN \
     gnupg && \
   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - && \
   ARCH=$(uname -m | sed 's/x86_64/amd64/g' |sed 's/aarch64/arm64/g') && \
-  echo "deb [arch=${ARCH}] https://download.docker.com/linux/ubuntu jammy stable" > \
+  echo "deb [arch=${ARCH}] https://download.docker.com/linux/ubuntu noble stable" > \
     /etc/apt/sources.list.d/docker.list && \
   curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | \
     gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg && \
-  curl -s -L https://nvidia.github.io/libnvidia-container/ubuntu22.04/libnvidia-container.list | \
+  curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \
     sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
     tee /etc/apt/sources.list.d/nvidia-container-toolkit.list && \
-  curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+  curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
   apt-get install -y --no-install-recommends \
     bash \
     btrfs-progs \
@@ -71,9 +71,6 @@ RUN \
   /tmp/s6-overlay-installer / && \
   echo "**** setup wizard ****" && \
   mkdir -p /wizard && \
-  if [ "${RELEASE_TYPE}" = "develop" ]; then \
-    KASM_VERSION=$(curl -sX GET https://kasm-ci.s3.amazonaws.com/dev-version.txt); \
-  fi; \
   if [ "${RELEASE_TYPE}" = "stable" ]; then \
     KASM_VERSION=$(curl -sX GET 'https://api.github.com/repos/kasmtech/kasm-install-wizard/releases/latest' \
     | jq -r '.name'); \
@@ -90,29 +87,30 @@ RUN \
   echo "**** add installer ****" && \
   curl -o \
     /tmp/kasm.tar.gz -L \
-    "https://github.com/kasmtech/kasm-install-wizard/releases/download/${KASM_VERSION}/kasm_release.tar.gz" && \
+    "https://kasm-static-content.s3.amazonaws.com/kasm_release_${KASM_VERSION}.tar.gz" && \
   tar xf \
     /tmp/kasm.tar.gz -C \
     / && \
-  ALVERSION=$(cat /kasm_release/conf/database/seed_data/default_properties.yaml |awk '/alembic_version/ {print $2}') && \
-  curl -o \
-    /tmp/images.tar.gz -L \
-    "https://kasm-ci.s3.us-east-1.amazonaws.com/1.18.0-images-combined.tar.gz" && \
-  tar xf \
-    /tmp/images.tar.gz -C \
-    / && \
-  sed -i \
-    '/alembic_version/s/.*/alembic_version: '${ALVERSION}'/' \
-    /kasm_release/conf/database/seed_data/default_images_a* && \
   sed -i 's/-N -e -H/-N -B -e -H/g' /kasm_release/upgrade.sh && \
   echo "exit 0" > /kasm_release/install_dependencies.sh && \
-  echo "**** copy assets ****" && \
-  cp \
-    /kasm_release/www/img/thumbnails/*.png /kasm_release/www/img/thumbnails/*.svg \
-    /wizard/public/img/thumbnails/ && \
-  cp \
-    /kasm_release/conf/database/seed_data/default_images_a* \
-    /wizard/ && \
+  # Set dependencies
+  /kasm_release/bin/utils/yq_$(uname -m) -i \
+    '.services.proxy.depends_on = {"kasm_manager":{"condition": "service_healthy"},"kasm_api":{"condition": "service_healthy"},"kasm_agent":{"condition": "service_started"},"kasm_guac":{"condition": "service_started"}}' \
+    /kasm_release/docker/docker-compose-all.yaml && \
+  /kasm_release/bin/utils/yq_$(uname -m) -i \
+    '.services.kasm_manager.depends_on = {"db":{"condition": "service_healthy"}}' \
+    /kasm_release/docker/docker-compose-all.yaml && \
+  /kasm_release/bin/utils/yq_$(uname -m) -i \
+    '.services.kasm_api.depends_on = {"db":{"condition": "service_healthy"}}' \
+    /kasm_release/docker/docker-compose-all.yaml && \
+  /kasm_release/bin/utils/yq_$(uname -m) -i \
+    '.services.kasm_api.healthcheck += {"start_period": "60s","start_interval": "30s"}' \
+    /kasm_release/docker/docker-compose-all.yaml && \
+  /kasm_release/bin/utils/yq_$(uname -m) -i \
+    '.services.kasm_rdp_https_gateway.depends_on = {"proxy":{"condition": "service_started"}}' \
+    /kasm_release/docker/docker-compose-all.yaml && \
+  useradd -u 70 kasm_db && \
+  useradd kasm && \
   echo "**** cleanup ****" && \
   apt-get remove -y g++ gcc make && \
   apt-get -y autoremove && \

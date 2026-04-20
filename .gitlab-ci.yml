@@ -1,6 +1,6 @@
-image: docker
+image: docker:28.2.2
 services:
-  - docker:dind
+  - docker:28.2.2-dind
 
 stages:
   - build
