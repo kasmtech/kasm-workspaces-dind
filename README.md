@@ -80,6 +80,6 @@ docker run -d \
 | arm64 | aarch64-\<version tag\> |
 
 
-## Reporting Issues
+# Reporting Issues
 
 To report any issues for this repository, please use our central issue tracker: **[Kasm Workspaces Issue Tracker](https://github.com/kasmtech/workspaces-issues/issues)**
