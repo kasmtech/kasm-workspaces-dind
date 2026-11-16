@@ -76,7 +76,7 @@ docker run -d \
    ```
    docker logs kasm 2>&1 | grep -A1 'setup token'
    ```
-2. Open `https://127.0.0.1:3000/?token=<token>` (or enter the token when prompted) and complete the install.
+2. Open `https://127.0.0.1:3000/#token=<token>` (or enter the token when prompted) and complete the install.
 3. Log in at `https://<host>:443`. Once the install finishes the wizard stops automatically.
 
 The wizard is bound to `127.0.0.1` in the examples above. On a headless host, reach it through an SSH tunnel (`ssh -L 3000:127.0.0.1:3000 <host>`) rather than publishing it on the network. **Never expose port 3000 to the internet.**

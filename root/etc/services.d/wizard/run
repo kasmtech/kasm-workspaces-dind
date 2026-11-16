@@ -11,9 +11,9 @@ if [[ -f /opt/NO_WIZARD ]]; then
   exec sleep infinity
 fi
 
-# First-run setup is always allowed (including retrying a failed wizard install),
-# after install the wizard needs KASM_SETUP=true
-if [[ -L /opt/kasm/current ]] && [[ ! -f /opt/kasm/.wizard_install_pending ]] && [[ "${KASM_SETUP}" != "true" ]]; then
+# First-run setup is always allowed (including retrying a wizard install that failed
+# before /opt/kasm/current was created), after install the wizard needs KASM_SETUP=true
+if [[ -L /opt/kasm/current ]] && [[ "${KASM_SETUP}" != "true" ]]; then
   echo "Kasm is installed and KASM_SETUP is not 'true', install wizard disabled"
   exec sleep infinity
 fi

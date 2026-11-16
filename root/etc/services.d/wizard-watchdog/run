@@ -1,6 +1,6 @@
 #!/usr/bin/with-contenv bash
 
-if [[ -L /opt/kasm/current ]] && [[ ! -f /opt/kasm/.wizard_install_pending ]]; then
+if [[ -L /opt/kasm/current ]]; then
   exec sleep infinity
 fi
 
