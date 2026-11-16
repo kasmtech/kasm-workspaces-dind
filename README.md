@@ -18,7 +18,7 @@ It has a few core principles:
 version: "2.1"
 services:
   kasm:
-    image: kasmweb/workspaces:1.18.0
+    image: kasmweb/workspaces:1.19.0
     privileged: true
     container_name: kasm
     environment:
@@ -53,7 +53,7 @@ docker run -d \
   -v /path/to/profiles:/profiles `#optional` \
   -v /dev/input:/dev/input `#optional` \
   -v /run/udev/data:/run/udev/data `#optional` \
-  kasmweb/workspaces:1.18.0
+  kasmweb/workspaces:1.19.0
 ```
 
 | Parameter | Function |
@@ -72,12 +72,16 @@ docker run -d \
 
 ## First-run setup
 
-1. Start the container and read the wizard's one-time setup token from the logs:
+1. Start the container and read the wizard's setup token from the logs (a new one is printed each time the wizard starts):
    ```
-   docker logs kasm 2>&1 | grep -A1 'setup token'
+   docker logs kasm 2>&1 | grep -A1 'setup token (required' | tail -1
    ```
 2. Open `https://127.0.0.1:3000/#token=<token>` (or enter the token when prompted) and complete the install.
-3. Log in at `https://<host>:443`. Once the install finishes the wizard stops automatically.
+3. Log in at `https://<host>:443`. Once the install finishes the wizard stops automatically (unless `KASM_SETUP=true`).
+
+If `/opt/NO_WIZARD` exists (created by "Stop Install Wizard"), the wizard does not start; delete it and restart the container.
+
+If the install fails before Kasm's services are started (no `/opt/kasm/current` yet), fix the cause and retry from the wizard; the retry starts over, including the database that attempt seeded (after a container restart, the wizard comes back for the retry). If it fails or is interrupted later, the wizard will not run the installer again, because that would reset the database. To start over, remove the container and empty the `/opt` storage directory (`/kasm/local/storage` above). This deletes all Kasm data.
 
 The wizard is bound to `127.0.0.1` in the examples above. On a headless host, reach it through an SSH tunnel (`ssh -L 3000:127.0.0.1:3000 <host>`) rather than publishing it on the network. **Never expose port 3000 to the internet.**
 

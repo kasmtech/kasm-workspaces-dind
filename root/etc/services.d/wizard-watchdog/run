@@ -1,6 +1,6 @@
 #!/usr/bin/with-contenv bash
 
-if [[ -L /opt/kasm/current ]]; then
+if [[ -L /opt/kasm/current || -e /opt/kasm/current || -f /opt/kasm/.wizard_install_complete ]]; then
   exec sleep infinity
 fi
 
@@ -10,9 +10,12 @@ until [[ -f /opt/kasm/.wizard_install_complete ]]; do
   sleep 5
 done
 
-if [[ "${KASM_SETUP}" != "true" ]]; then
+setup="${KASM_SETUP,,}"
+setup="${setup//[[:space:]]/}"
+if [[ "${setup}" != "true" ]]; then
   echo "First-run install complete, stopping install wizard"
-  pkill --signal SIGTERM -f '/usr/bin/node index.js'
+  # Take the service down so s6 does not restart it, the wizard gate covers container restarts
+  s6-svc -d /var/run/s6/services/wizard 2>/dev/null || pkill --signal SIGTERM -f '/usr/bin/node index.js'
 fi
 
 exec sleep infinity

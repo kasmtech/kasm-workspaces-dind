@@ -13,7 +13,10 @@ fi
 
 # First-run setup is always allowed (including retrying a wizard install that failed
 # before /opt/kasm/current was created), after install the wizard needs KASM_SETUP=true
-if [[ -L /opt/kasm/current ]] && [[ "${KASM_SETUP}" != "true" ]]; then
+# (any case, whitespace ignored). Installed matches the wizard's own check.
+setup="${KASM_SETUP,,}"
+setup="${setup//[[:space:]]/}"
+if [[ -L /opt/kasm/current || -e /opt/kasm/current || -f /opt/kasm/.wizard_install_complete ]] && [[ "${setup}" != "true" ]]; then
   echo "Kasm is installed and KASM_SETUP is not 'true', install wizard disabled"
   exec sleep infinity
 fi
