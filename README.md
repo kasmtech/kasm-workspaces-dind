@@ -23,6 +23,7 @@ services:
     container_name: kasm
     environment:
       - KASM_PORT=443 #optional
+      - KASM_SETUP=false #optional
       - DOCKER_HUB_USERNAME=USER #optional
       - DOCKER_HUB_PASSWORD=PASS #optional
     volumes:
@@ -32,7 +33,7 @@ services:
       - /run/udev/data:/run/udev/data #optional
     ports:
       - 443:443
-      - 3000:3000
+      - 127.0.0.1:3000:3000
     restart: unless-stopped
 ```
 
@@ -43,10 +44,11 @@ docker run -d \
   --privileged \
   --name=kasm \
   -e KASM_PORT=443 `#optional` \
+  -e KASM_SETUP=false `#optional` \
   -e DOCKER_HUB_USERNAME=USER `#optional` \
   -e DOCKER_HUB_PASSWORD=PASS `#optional` \
   -p 443:443 \
-  -p 3000:3000 \
+  -p 127.0.0.1:3000:3000 \
   -v /kasm/local/storage:/opt \
   -v /path/to/profiles:/profiles `#optional` \
   -v /dev/input:/dev/input `#optional` \
@@ -57,15 +59,31 @@ docker run -d \
 | Parameter | Function |
 | :----: | --- |
 | `-p 443` | Kasm Workspaces web UI (HTTPS) |
-| `-p 3000` | Kasm Installation and upgrade wizard (HTTPS) |
+| `-p 127.0.0.1:3000:3000` | Kasm Installation and upgrade wizard (HTTPS), bound to localhost only |
 | `-v /kasm/local/storage:/opt` | Docker and Kasm Storage |
 | `-v /profiles` | Optionally specify a path for persistent profile storage. |
 | `-v /dev/input` | Optional for gamepad support. |
 | `-v /run/udev/data` | Optional for gamepad support. |
 | `-e KASM_PORT=443` | If not using port 443 this needs to be set to the port you are binding to (optional) |
+| `-e KASM_SETUP=false` | Set to `true` to enable the install wizard after Kasm is installed, e.g. to upgrade. First-run setup is always enabled (optional) |
 | `-e DOCKER_HUB_USERNAME=USER` | Dockerhub username for logging in on init (optional) |
 | `-e DOCKER_HUB_PASSWORD=PASS` | Dockerhub password for logging in on init (optional) |
 
+
+## First-run setup
+
+1. Start the container and read the wizard's one-time setup token from the logs:
+   ```
+   docker logs kasm 2>&1 | grep -A1 'setup token'
+   ```
+2. Open `https://127.0.0.1:3000/?token=<token>` (or enter the token when prompted) and complete the install.
+3. Log in at `https://<host>:443`. Once the install finishes the wizard stops automatically.
+
+The wizard is bound to `127.0.0.1` in the examples above. On a headless host, reach it through an SSH tunnel (`ssh -L 3000:127.0.0.1:3000 <host>`) rather than publishing it on the network. **Never expose port 3000 to the internet.**
+
+## Upgrading
+
+Pull the new image, recreate the container with `KASM_SETUP=true`, open the wizard with the new token from the logs and run the upgrade. Then set `KASM_SETUP=false` and recreate the container again. If `/opt/NO_WIZARD` exists (created by "Stop Install Wizard"), delete it first.
 
 # Versions
 

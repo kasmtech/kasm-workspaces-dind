@@ -1,0 +1,18 @@
+#!/usr/bin/with-contenv bash
+
+if [[ -L /opt/kasm/current ]] && [[ ! -f /opt/kasm/.wizard_install_pending ]]; then
+  exec sleep infinity
+fi
+
+# The wizard writes this only after install.sh exits successfully, a failed
+# install keeps the wizard available
+until [[ -f /opt/kasm/.wizard_install_complete ]]; do
+  sleep 5
+done
+
+if [[ "${KASM_SETUP}" != "true" ]]; then
+  echo "First-run install complete, stopping install wizard"
+  pkill --signal SIGTERM -f '/usr/bin/node index.js'
+fi
+
+exec sleep infinity
