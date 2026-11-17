@@ -1,25 +1,17 @@
 #!/usr/bin/with-contenv bash
 
 # Wait for docker to be up
-while [[ ! -S /var/run/docker.sock ]]; do
+while true; do
+  if [ -S "/var/run/docker.sock" ]; then
+    break
+  fi
   sleep 1
 done
 
-# Stopped from the wizard ("Stop Install Wizard"), before or after install
-if [[ -f /opt/NO_WIZARD ]]; then
-  echo "/opt/NO_WIZARD exists, install wizard disabled"
-  exec sleep infinity
+# Don't do anything if wizard is disabled
+if [ -f "/opt/NO_WIZARD" ]; then
+  sleep infinity
 fi
 
-# First-run setup is always allowed (including retrying a wizard install that failed
-# before /opt/kasm/current was created), after install the wizard needs KASM_SETUP=true
-# (any case, whitespace ignored). Installed matches the wizard's own check.
-setup="${KASM_SETUP,,}"
-setup="${setup//[[:space:]]/}"
-if [[ -L /opt/kasm/current || -e /opt/kasm/current || -f /opt/kasm/.wizard_install_complete ]] && [[ "${setup}" != "true" ]]; then
-  echo "Kasm is installed and KASM_SETUP is not 'true', install wizard disabled"
-  exec sleep infinity
-fi
-
-cd /wizard || exit 1
-exec /usr/bin/node index.js
+cd /wizard
+/usr/bin/node index.js

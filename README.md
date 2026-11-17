@@ -23,7 +23,6 @@ services:
     container_name: kasm
     environment:
       - KASM_PORT=443 #optional
-      - KASM_SETUP=false #optional
       - DOCKER_HUB_USERNAME=USER #optional
       - DOCKER_HUB_PASSWORD=PASS #optional
     volumes:
@@ -44,7 +43,6 @@ docker run -d \
   --privileged \
   --name=kasm \
   -e KASM_PORT=443 `#optional` \
-  -e KASM_SETUP=false `#optional` \
   -e DOCKER_HUB_USERNAME=USER `#optional` \
   -e DOCKER_HUB_PASSWORD=PASS `#optional` \
   -p 443:443 \
@@ -65,7 +63,6 @@ docker run -d \
 | `-v /dev/input` | Optional for gamepad support. |
 | `-v /run/udev/data` | Optional for gamepad support. |
 | `-e KASM_PORT=443` | If not using port 443 this needs to be set to the port you are binding to (optional) |
-| `-e KASM_SETUP=false` | Set to `true` to enable the install wizard after Kasm is installed, e.g. to upgrade. First-run setup is always enabled (optional) |
 | `-e DOCKER_HUB_USERNAME=USER` | Dockerhub username for logging in on init (optional) |
 | `-e DOCKER_HUB_PASSWORD=PASS` | Dockerhub password for logging in on init (optional) |
 
@@ -77,17 +74,17 @@ docker run -d \
    docker logs kasm 2>&1 | grep -A1 'setup token (required' | tail -1
    ```
 2. Open `https://127.0.0.1:3000/#token=<token>` (or enter the token when prompted) and complete the install.
-3. Log in at `https://<host>:443`. Once the install finishes the wizard stops automatically (unless `KASM_SETUP=true`).
+3. Log in at `https://<host>:443`.
 
-If `/opt/NO_WIZARD` exists (created by "Stop Install Wizard"), the wizard does not start; delete it and restart the container.
+The wizard keeps running after the install so it can be used for upgrades. To turn it off, click "Stop Install Wizard". This creates `/opt/NO_WIZARD`, and the wizard stays off until you delete that file and restart the container.
 
-If the install fails before Kasm's services are started (no `/opt/kasm/current` yet), fix the cause and retry from the wizard; the retry starts over, including the database that attempt seeded (after a container restart, the wizard comes back for the retry). If it fails or is interrupted later, the wizard will not run the installer again, because that would reset the database. To start over, remove the container and empty the `/opt` storage directory (`/kasm/local/storage` above). This deletes all Kasm data.
+If the install fails before Kasm's services are started (no `/opt/kasm/current` yet), fix the cause and retry from the wizard; the retry starts over, including the database that attempt seeded. If it fails or is interrupted later, the wizard will not run the installer again, because that would reset the database. To start over, remove the container and empty the `/opt` storage directory (`/kasm/local/storage` above). This deletes all Kasm data.
 
-The wizard is bound to `127.0.0.1` in the examples above. On a headless host, reach it through an SSH tunnel (`ssh -L 3000:127.0.0.1:3000 <host>`) rather than publishing it on the network. **Never expose port 3000 to the internet.**
+Port 3000 is published as `127.0.0.1:3000` in the examples above, so the wizard can only be opened from the host itself. Other machines on your network, and the internet, cannot reach it. Keep it that way: the wizard can install and upgrade Kasm. On a headless host, use an SSH tunnel (`ssh -L 3000:127.0.0.1:3000 <host>`) and open `https://127.0.0.1:3000` on your own machine. **Never expose port 3000 to the internet.**
 
 ## Upgrading
 
-Pull the new image, recreate the container with `KASM_SETUP=true`, open the wizard with the new token from the logs and run the upgrade. Then set `KASM_SETUP=false` and recreate the container again. If `/opt/NO_WIZARD` exists (created by "Stop Install Wizard"), delete it first.
+Pull the new image and recreate the container (if `/opt/NO_WIZARD` exists, delete it first). Then open the wizard with the new token from the logs and run the upgrade.
 
 # Versions
 
