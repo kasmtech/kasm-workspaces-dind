@@ -3,6 +3,9 @@ FROM ubuntu:noble
 # Settings
 ARG OVERLAY_VERSION="v2.2.0.3"
 ARG RELEASE_TYPE="stable"
+# Kasm release installed by this image, and the install wizard tag it ships with
+ARG KASM_VERSION="1.18.1"
+ARG WIZARD_VERSION="1.18.1.1"
 ENV DOCKER_TLS_CERTDIR="" \
     NVIDIA_DRIVER_CAPABILITIES="compute,graphics,video,utility"
 
@@ -71,14 +74,10 @@ RUN \
   /tmp/s6-overlay-installer / && \
   echo "**** setup wizard ****" && \
   mkdir -p /wizard && \
-  if [ "${RELEASE_TYPE}" = "stable" ]; then \
-    KASM_VERSION=$(curl -sX GET 'https://api.github.com/repos/kasmtech/kasm-install-wizard/releases/latest' \
-    | jq -r '.name'); \
-  fi; \
   echo "${KASM_VERSION}" > /version.txt && \
   curl -o \
     /tmp/wizard.tar.gz -L \
-    "https://github.com/kasmtech/kasm-install-wizard/archive/refs/tags/${KASM_VERSION}.tar.gz" && \
+    "https://github.com/kasmtech/kasm-install-wizard/archive/refs/tags/${WIZARD_VERSION}.tar.gz" && \
   tar xf \
     /tmp/wizard.tar.gz -C \
     /wizard --strip-components=1 && \
